@@ -1,0 +1,55 @@
+<launch>
+
+<param name="/stretch_driver/broadcast_odom_tf" type="bool" value="false"/>
+<param name="/stretch_driver/mode" type="string" value="navigation" />
+<include file="$(find stretch_core)/launch/stretch_driver.launch">
+</include>
+
+
+<include file="$(find stretch_core)/launch/rplidar.launch"></include>
+
+
+<include file="$(find stretch_core)/launch/teleop_twist.launch">
+    <arg name="teleop_type" value="joystick"/>
+    <arg name="linear" value="0.3"/>
+    <arg name="angular" value="0.5"/>
+</include>
+
+
+<!-- Copied from d435i_basic.launch -->
+<arg name="rs_initial_preset" default="$(find stretch_core)/config/HighAccuracyPreset.json" doc="filepath to json defining a visual preset for the depth image" />
+<arg name="rs_initial_reset"  default="true"                                                doc="whether to reset camera before streaming, useful if the camera got into a bad state in the last session" />
+<include file="$(find realsense2_camera)/launch/rs_camera.launch">
+    <arg name="enable_color" value="true"/>
+    <arg name="color_width" value="848" />
+    <arg name="color_height" value="480" />
+    <arg name="color_fps" value="30"/>
+
+    <arg name="enable_depth" value="true"/>
+    <arg name="depth_fps" value="30"/>
+    <arg name="align_depth" value="true" />
+    <arg name="filters" value="pointcloud" />
+    <arg name="ordered_pc" value="true" />
+
+    <arg name="enable_infra1" value="true" />
+    <arg name="enable_infra2" value="true" />
+    <arg name="infra_width" value="848" />
+    <arg name="infra_height" value="480" />
+
+    <arg name="enable_accel" value="true" />
+    <arg name="enable_gyro" value="true" />
+    <arg name="accel_fps" value="250"/>
+    <arg name="gyro_fps" value="200"/>
+    <arg name="unite_imu_method" value="linear_interpolation" />
+
+    <!-- "initial_reset: On occasions the device was not closed
+         properly and due to firmware issues needs to reset. If set to
+         true, the device will reset prior to usage."
+         https://github.com/intel-ros/realsense -->
+    <arg name="initial_reset" value="$(arg rs_initial_reset)"/>
+
+    <!-- configure the depth image to the high accuracy visual preset -->
+    <arg name="json_file_path" value="$(arg rs_initial_preset)" />
+</include>
+
+</launch>
